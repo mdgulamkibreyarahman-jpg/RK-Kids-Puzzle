@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#6758e8">
+<title>RK Kids Puzzle</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Noto Sans Bengali",sans-serif;background:linear-gradient(135deg,#f5f4ff,#e6f9ff);color:#20233a}
+header{background:linear-gradient(120deg,#6758e8,#26a8d9);color:white;padding:22px 18px 25px;border-radius:0 0 28px 28px;box-shadow:0 8px 25px #6858e833}
+h1{margin:0;font-size:27px}header p{margin:5px 0 0;opacity:.9}.wrap{max-width:720px;margin:auto;padding:15px}
+.stats{display:flex;gap:10px;margin:12px 0}.stat{flex:1;background:#fff;padding:12px;border-radius:16px;text-align:center;box-shadow:0 4px 12px #24334a0a;font-weight:700}.stat small{display:block;color:#778;font-weight:500}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.tab{border:0;border-radius:14px;background:white;padding:13px 6px;font-size:15px;font-weight:700;color:#444;box-shadow:0 3px 10px #00000008}.tab.active{background:#6758e8;color:#fff}
+.card{background:#fff;border-radius:22px;padding:18px;margin:12px 0;box-shadow:0 8px 24px #28324b0b}.card h2{margin:0 0 5px;font-size:21px}.desc{color:#687080;margin:0 0 14px;font-size:14px}
+select{border:1px solid #ddd;border-radius:12px;padding:10px;font:inherit;background:#fff}
+button{cursor:pointer}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
+.slots,.tiles{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:58px;padding:8px;border-radius:16px;background:#f5f6fb;margin:10px 0}
+.slot{width:46px;height:48px;border:2px dashed #d0d3e2;border-radius:12px;display:grid;place-items:center;font-size:22px;background:white;color:#555}
+.slot.filled{border:2px solid #8b80f0;background:#eeeaff;color:#5040c5}.slot.next{border-color:#25b6cf}
+.tile{border:0;min-width:45px;height:48px;padding:0 9px;border-radius:12px;background:#fff;box-shadow:0 3px 8px #0001;font-size:22px;font-weight:700;color:#292b45}
+.tile:active{transform:scale(.96)}.tile.used{opacity:.25;pointer-events:none}
+.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:700;background:#6758e8;color:white}.btn.secondary{background:#eef0f8;color:#444}.btn.green{background:#1da878}
+.message{min-height:27px;text-align:center;font-weight:700;color:#6658dc;margin:8px}.quiz{text-align:center}.question{font-size:34px;font-weight:800;margin:18px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer{border:0;background:#f2f0ff;padding:17px;border-radius:15px;font-size:22px;font-weight:800;color:#5142bd}.answer.correct{background:#dff8eb;color:#13824f}.answer.wrong{background:#ffe6e6;color:#c44}
+footer{text-align:center;color:#8a8c9d;padding:16px;font-size:12px}
+@media(max-width:400px){.tile,.slot{min-width:38px;width:38px;height:42px;font-size:19px}.tab{font-size:13px}}
+</style></head>
+<body>
+<header><h1>🧩 RK Kids Puzzle</h1><p>খেলতে খেলতে শেখো • Learn & Play!</p></header>
+<div class="wrap">
+<div class="stats"><div class="stat"><span id="score">0</span><small>⭐ পয়েন্ট</small></div><div class="stat"><span id="level">1</span><small>🎯 লেভেল</small></div><div class="stat"><span id="done">0</span><small>🏆 সম্পন্ন</small></div></div>
+<div class="tabs">
+<button class="tab active" data-mode="bnv">স্বরবর্ণ</button><button class="tab" data-mode="bnc">ব্যঞ্জনবর্ণ</button><button class="tab" data-mode="abc">English ABC</button><button class="tab" data-mode="small">Small abc</button><button class="tab" data-mode="num">সংখ্যা</button><button class="tab" data-mode="math">গণিত</button><button class="tab" data-mode="img">ছবি-শব্দ</button>
+</div>
+<div class="card" id="game">
+<h2 id="title">বাংলা স্বরবর্ণ Puzzle</h2><p class="desc" id="desc">এলোমেলো অক্ষরগুলো সঠিক ক্রমে সাজাও।</p>
+<div class="controls"><label>ধাপ: <select id="difficulty"><option value="easy">সহজ</option><option value="medium">মাঝারি</option><option value="hard">কঠিন</option></select></label><button class="btn secondary" id="shuffle">🔀 আবার এলোমেলো</button></div>
+<div id="puzzle"><div class="slots" id="slots"></div><div class="tiles" id="tiles"></div><div class="message" id="msg">একটি অক্ষর ট্যাপ করো!</div><div class="controls" style="justify-content:center"><button class="btn secondary" id="undo">↩️ ফিরিয়ে নাও</button><button class="btn" id="check">✅ যাচাই</button><button class="btn green" id="next">পরের লেভেল ➜</button></div></div>
+<div id="quiz" class="quiz" hidden><div class="question" id="question"></div><div class="answers" id="answers"></div><div class="message" id="qmsg"></div><button class="btn green" id="qnext">পরের প্রশ্ন ➜</button></div>
+</div></div><footer>RK Kids Puzzle • Made for little learners 💜</footer>
+<script>
+const data={
+bnv:["অ","আ","ই","ঈ","উ","ঊ","ঋ","এ","ঐ","ও","ঔ"],
+bnc:["ক","খ","গ","ঘ","ঙ","চ","ছ","জ","ঝ","ঞ","ট","ঠ","ড","ঢ","ণ","ত","থ","দ","ধ","ন","প","ফ","ব","ভ","ম","য","র","ল","শ","ষ","স","হ","ড়","ঢ়","য়","ৎ","ং","ঃ","ঁ"],
+abc:"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+small:"abcdefghijklmnopqrstuvwxyz".split(""),
+num:Array.from({length:20},(_,i)=>String(i+1)),
+img:[{emoji:"🐱",word:"বিড়াল"},{emoji:"🐶",word:"কুকুর"},{emoji:"🍎",word:"আপেল"},{emoji:"🥭",word:"আম"},{emoji:"🐟",word:"মাছ"},{emoji:"🌸",word:"ফুল"},{emoji:"🚗",word:"গাড়ি"},{emoji:"🏠",word:"বাড়ি"},{emoji:"☀️",word:"সূর্য"},{emoji:"🌙",word:"চাঁদ"}]
+};
+const names={bnv:"বাংলা স্বরবর্ণ Puzzle",bnc:"বাংলা ব্যঞ্জনবর্ণ Puzzle",abc:"English Alphabet Puzzle",small:"Small Letters Puzzle",num:"সংখ্যা Puzzle",math:"গণিত Quiz"};
+let mode="bnv",score=0,level=1,done=0,items=[],placed=[],quizAnswer=null,imgSet=[];
+const $=id=>document.getElementById(id);
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function load(){
+ $("title").textContent=names[mode];$("desc").textContent=mode==="math"?"সঠিক উত্তরটি বেছে নাও!":"এলোমেলো অক্ষর/সংখ্যা সঠিক ক্রমে সাজাও।";
+ $("puzzle").hidden=mode==="math";$("quiz").hidden=mode!=="math";
+ if(mode==="math"){newQuestion();return}
+ if(mode==="img"){imgSet=shuffle(data.img).slice(0,Math.min(4+level,8));items=imgSet.map(x=>x.word);placed=[];render();return}
+ let source=data[mode];let count=mode==="bnc"?Math.min(8+level*2,source.length):mode==="num"?Math.min(5+level,20):source.length;
+ if(mode==="bnv"||mode==="abc"||mode==="small") count=Math.min(source.length,Math.max(5,Math.min(source.length,5+level*2)));
+ items=source.slice(0,count);placed=[];render();
+}
+function render(){
+ $("slots").innerHTML="";items.forEach((v,i)=>{let s=document.createElement("button");s.className="slot"+(placed[i]?" filled":"")+(i===placed.length?" next":"");s.textContent=placed[i]||(mode==="img"?imgSet[i].emoji:"•");s.onclick=()=>{if(placed[i]){placed.splice(i,1);render()}};$("slots").appendChild(s)});
+ $("tiles").innerHTML="";shuffle(items.filter(x=>!placed.includes(x))).forEach(v=>{let b=document.createElement("button");b.className="tile";b.textContent=v;b.onclick=()=>{speak(v);if(placed.length<items.length){placed.push(v);render()}};$("tiles").appendChild(b)});
+}
+function speak(t){try{let u=new SpeechSynthesisUtterance(t);u.lang=(mode==="abc"||mode==="small")?"en-US":"bn-BD";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function check(){if(placed.length!==items.length){$("msg").textContent="সবগুলো সাজানো হয়নি! 😊";return}
+ let correct=items.every((v,i)=>placed[i]===v);
+ if(correct){score+=items.length*10;done++;level++;updateStats();$("msg").textContent="🎉 অসাধারণ! সব সঠিক হয়েছে!";}else{$("msg").textContent="আবার চেষ্টা করো! ক্রম ঠিক হয়নি 😊"}}
+function updateStats(){$("score").textContent=score;$("level").textContent=level;$("done").textContent=done}
+function newQuestion(){let a=Math.ceil(Math.random()*12),b=Math.ceil(Math.random()*12),op=["+","−","×"][Math.floor(Math.random()*3)];let ans=op==="+"?a+b:op==="−"?Math.abs(a-b):a*b;quizAnswer=ans;$("question").textContent=`${a} ${op} ${b} = ?`;let opts=shuffle([ans,ans+1,Math.max(0,ans-2),ans+3]);$("answers").innerHTML="";opts.forEach(n=>{let btn=document.createElement("button");btn.className="answer";btn.textContent=n;btn.onclick=()=>{if(n===quizAnswer){btn.classList.add("correct");score+=10;done++;level++;$("qmsg").textContent="🎉 সঠিক উত্তর!";updateStats()}else{btn.classList.add("wrong");$("qmsg").textContent="আবার চেষ্টা করো!";}};$("answers").appendChild(btn)});$("qmsg").textContent=""}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");mode=b.dataset.mode;load()});
+$("shuffle").onclick=()=>{placed=[];items=shuffle(items);render();$("msg").textContent="আবার সাজাও!"};
+$("undo").onclick=()=>{placed.pop();render()};
+$("check").onclick=check;$("next").onclick=()=>load();$("qnext").onclick=newQuestion;
+$("difficulty").onchange=()=>{level=1;load();updateStats()};
+load();
+</script></body></html>
